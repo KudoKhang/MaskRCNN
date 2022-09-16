@@ -1,0 +1,6 @@
+efficientnet_pytorch
+torch
+opencv-python
+numpy
+pillow
+glob
