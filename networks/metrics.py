@@ -1,9 +1,9 @@
 from .libs import *
 from ._utils import bbox_overlaps
 
-def f1_loss(y_true: torch.Tensor, y_pred: torch.Tensor, is_training=True) -> torch.Tensor:
-    y_true = y_true.flatten()
-    y_pred = y_pred.flatten()
+def f1_loss(y_true: torch.Tensor, y_pred: torch.Tensor, device, is_training=True) -> torch.Tensor:
+    y_true = y_true.to(device).flatten()
+    y_pred = y_pred.to(device).flatten()
 
     tp = (y_true * y_pred).sum().to(torch.float32)
     tn = ((1 - y_true) * (1 - y_pred)).sum().to(torch.float32)
@@ -41,7 +41,7 @@ def eval_model(model, data_loader, device):
 
             f1score_temp = []
             for i in range(len(pred_mask)):
-                f1score_temp.append(f1_loss(target_mask, pred_mask[i]))
+                f1score_temp.append(f1_loss(target_mask, pred_mask[i], device))
             f1score.append(max(f1score_temp).detach().cpu())
             ious_score = bbox_overlaps(pred_box.cpu(), target_box).numpy()
             map = np.mean(ious_score[range(len(ious_score)), np.argmax(ious_score, -1)] >= 0.5)
