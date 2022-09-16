@@ -11,5 +11,9 @@ from glob import glob
 from numpy.random import uniform
 import random
 import argparse
+import time
+import wandb
+os.environ["WANDB_API_KEY"] = 'e7ed558aefc5cddf29d04c3037a712507b253521'
+
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
