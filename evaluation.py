@@ -3,11 +3,11 @@ from networks import *
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=str, default="dataset/Figaro_1k_png/", help="Path to input image")
-    parser.add_argument("--batch", type=int, default=8)
+    parser.add_argument("--batch", type=int, default=1)
     parser.add_argument("--epoch", type=int, default=200)
     parser.add_argument("--pretrained", type=str, default='checkpoints/')
     parser.add_argument("--lr", type=float, default=1e-5)
-    parser.add_argument("--num-workers", type=int, default=4)
+    parser.add_argument("--num-workers", type=int, default=1)
     parser.add_argument("--num-classes", type=int, default=2)
     args = parser.parse_args()
     print("           ⊱ ──────ஓ๑♡๑ஓ ────── ⊰")
@@ -26,7 +26,7 @@ def eval():
     start_epoch = 0
     # Load pretrained if exist
     if os.path.exists(os.path.join(args.pretrained, 'lastest_model.pth')):
-        checkpoint = torch.load(os.path.join(args.pretrained, 'latest_model.pth'))
+        checkpoint = torch.load(os.path.join(args.pretrained, 'latest_model.pth'), map_location=device)
         model.load_state_dict(checkpoint['state_dict'])
         start_epoch = checkpoint['epoch']
         mAP = checkpoint['mAP']
@@ -39,7 +39,7 @@ def eval():
                                                  collate_fn=collate_fn)
 
     mm, f1 = eval_model(model, val_dataloader, device)
-    print(mm, f1)
+    print(f"mAP@50: {mm} -- F1Score: {f1}")
     return mm, f1
 
 if __name__ == '__main__':
