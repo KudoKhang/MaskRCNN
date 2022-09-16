@@ -3,4 +3,4 @@ torch
 opencv-python
 numpy
 pillow
-glob
+glob2
