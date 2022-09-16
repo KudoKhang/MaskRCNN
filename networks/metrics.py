@@ -18,7 +18,7 @@ def f1_loss(y_true: torch.Tensor, y_pred: torch.Tensor, is_training=True) -> tor
     f1.requires_grad = is_training
     return f1
 
-def eval_model(model, data_loader):
+def eval_model(model, data_loader, device):
     model.eval()
     map50 = []
     f1score = []
@@ -37,7 +37,7 @@ def eval_model(model, data_loader):
 
             idx_text = (predictions[j]["labels"] == 1)
             pred_box = predictions[j]["boxes"][idx_text]
-            pred_mask = predictions[l]["masks"][idx_text]
+            pred_mask = predictions[j]["masks"][idx_text]
 
             f1score.append(f1_loss(target_mask, pred_mask))
 
