@@ -23,7 +23,7 @@ def eval_model(model, data_loader, device):
     model.eval()
     map50 = []
     f1score = []
-    for images, targets in tqdm(data_loader):
+    for images, targets in data_loader:
         images = [image.to(device) for image in images]
         targets = [{k: v.cpu() for k, v in t.items()} for t in targets]
 
@@ -46,5 +46,4 @@ def eval_model(model, data_loader, device):
             ious_score = bbox_overlaps(pred_box.cpu(), target_box).numpy()
             map = np.mean(ious_score[range(len(ious_score)), np.argmax(ious_score, -1)] >= 0.5)
             map50.append(map)
-
-        return np.mean(map50), np.mean(f1score)
+    return np.mean(map50), np.mean(f1score)
