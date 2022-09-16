@@ -27,12 +27,12 @@ def train():
 
     start_epoch = 0
     # Load pretrained if exist
-    if os.path.exists(os.path.join(args.pretrained, 'lastest_model.pth')):
+    if os.path.exists(os.path.join(args.pretrained, 'latest_model.pth')):
         checkpoint = torch.load(os.path.join(args.pretrained, 'latest_model.pth'), map_location=device)
         model.load_state_dict(checkpoint['state_dict'])
         start_epoch = checkpoint['epoch']
-        mAP = checkpoint['mAP']
-        print('Resume training from ---{}--- have mIoU = {}, start at epoch: {} \n'.format(args.pretrained, mAP,
+        f1score = checkpoint['f1score']
+        print('Resume training from ---{}--- have F1Score = {}, start at epoch: {} \n'.format(args.pretrained, f1score,
                                                                                            start_epoch))
     # Dataloader
     dataset_train = HairDataset(path_dataset=args.root, transforms=get_transform(train=True), mode='train')
@@ -54,7 +54,10 @@ def train():
     scaler = torch.cuda.amp.GradScaler()
 
     n_batch = len(train_dataloader)
-    max_map = 0
+    max_f1 = 0
+
+    # Init section in Wandb
+    wandb.init(project='Hair_segmentation_MaskRCNN', entity='khanghn')
 
     for epoch in range(start_epoch, args.epoch):
         model.train()
@@ -83,12 +86,12 @@ def train():
                 if batch_idx >= n_batch - 1:
                     mm, f1 = eval_model(model, val_dataloader, device)
                     ll = np.mean(losses_record)
-                    if max_map < mm:
-                        max_map = mm
+                    if max_f1 < f1:
+                        max_f1 = f1
                         states = {
                             'epoch': epoch + 1,
                             'state_dict': model.state_dict(),
-                            'mAP': max_map
+                            'f1score': max_f1
                         }
                         torch.save(states, os.path.join(args.pretrained, 'best_model.pth'))
                         tepoch.set_postfix(loss=ll, max_map=mm, f1score=f1, save_weight='True')
@@ -97,10 +100,15 @@ def train():
                         states = {
                             'epoch': epoch + 1,
                             'state_dict': model.state_dict(),
-                            'mAP': max_map
+                            'f1score': max_f1
                         }
                         torch.save(states, os.path.join(args.pretrained, 'latest_model.pth'))
             lr_scheduler.step(ll)
+        
+        # Log metrics to wandb
+        wandb.log({"mAP@50: ": mm,
+                   "F1 Score ": f1,
+                   "Loss: ": ll})
 
 if __name__ == '__main__':
     train()
