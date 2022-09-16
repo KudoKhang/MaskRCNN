@@ -28,7 +28,7 @@ def train():
     start_epoch = 0
     # Load pretrained if exist
     if os.path.exists(os.path.join(args.pretrained, 'lastest_model.pth')):
-        checkpoint = torch.load(os.path.join(args.pretrained, 'latest_model.pth'))
+        checkpoint = torch.load(os.path.join(args.pretrained, 'latest_model.pth'), map_location=device)
         model.load_state_dict(checkpoint['state_dict'])
         start_epoch = checkpoint['epoch']
         mAP = checkpoint['mAP']
@@ -91,9 +91,9 @@ def train():
                             'mAP': max_map
                         }
                         torch.save(states, os.path.join(args.pretrained, 'best_model.pth'))
-                        tepoch.set_postfix(loss=ll, max_map=mm, save_weight='True')
+                        tepoch.set_postfix(loss=ll, max_map=mm, f1score=f1, save_weight='True')
                     else:
-                        tepoch.set_postfix(loss=ll, max_map=mm, save_weight='False')
+                        tepoch.set_postfix(loss=ll, max_map=mm, f1score=f1, save_weight='False')
                         states = {
                             'epoch': epoch + 1,
                             'state_dict': model.state_dict(),
