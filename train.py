@@ -81,7 +81,7 @@ def train():
                 # Save weights
                 os.makedirs(args.pretrained, exist_ok=True)
                 if batch_idx >= n_batch - 1:
-                    mm = eval_model(model, val_dataloader)
+                    mm, f1 = eval_model(model, val_dataloader, device)
                     ll = np.mean(losses_record)
                     if max_map < mm:
                         max_map = mm
