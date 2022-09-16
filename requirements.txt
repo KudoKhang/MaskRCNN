@@ -4,3 +4,6 @@ opencv-python
 numpy
 pillow
 glob2
+wandb
+pandas
+seaborn
