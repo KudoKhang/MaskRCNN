@@ -11,3 +11,5 @@ from glob import glob
 from numpy.random import uniform
 import random
 import argparse
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
