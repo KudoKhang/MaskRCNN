@@ -1,10 +1,11 @@
 from .libs import *
 
 class HairDataset(torch.utils.data.Dataset):
-    def __init__(self, path_dataset="dataset/Figaro_1k_png", transforms=None, mode='train'):
+    def __init__(self, path_dataset="dataset/Figaro_1k_png", transforms=None, mode='train', max_size=512):
         self.path_dataset = path_dataset
         self.transforms = transforms
         self.mode = mode
+        self.max_size = max_size
 
         self.DATA_PATH = os.path.join(os.getcwd(), self.path_dataset)
         self.train_path, self.val_path, self.test_path = [os.path.join(self.DATA_PATH, x) for x in
@@ -31,10 +32,18 @@ class HairDataset(torch.utils.data.Dataset):
         fname, _ = data_path.split('.')
         return "{}.{}".format(fname, 'png')
 
+    def resize(self, data, label, max_size=self.max_size):
+        w, h = data.size
+        max = h if h >= w else w
+        new_size = (int(max_size * w / h), max_size) if max == h else (max_size, int(max_size * h / w))
+        data = data.resize(new_size, Image.ANTIALIAS)
+        label = label.resize(new_size, Image.ANTIALIAS)
+        return data, label
+
     def image_loader(self, data_path, label_path):
         data = Image.open(data_path).convert('RGB')
         label = Image.open(label_path).convert('L')
-        return data, label
+        return self.resize(data, label)
     
     def __getitem__(self, index):
         data_path, label_path = self.data_files[index], self.label_files[index]
