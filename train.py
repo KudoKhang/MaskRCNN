@@ -17,11 +17,12 @@ def get_args():
     print()
     return args
 
+
 def train():
     args = get_args()
 
     # Init model
-    model = resnet50_maskRCNN(args.num_classes, True)
+    model = resnet101_maskRCNN(args.num_classes, True)
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     model.to(device)
 
@@ -33,17 +34,17 @@ def train():
         start_epoch = checkpoint['epoch']
         f1score = checkpoint['f1score']
         print('Resume training from ---{}--- have F1Score = {}, start at epoch: {} \n'.format(args.pretrained, f1score,
-                                                                                           start_epoch))
+                                                                                              start_epoch))
     # Dataloader
     dataset_train = HairDataset(path_dataset=args.root, transforms=get_transform(train=True), mode='train')
     train_dataloader = torch.utils.data.DataLoader(dataset_train, batch_size=args.batch,
-                                              shuffle=True, num_workers=args.num_workers,
-                                              collate_fn=collate_fn)
+                                                   shuffle=True, num_workers=args.num_workers,
+                                                   collate_fn=collate_fn)
 
     dataset_val = HairDataset(path_dataset=args.root, transforms=get_transform(train=False), mode='val')
     val_dataloader = torch.utils.data.DataLoader(dataset_val, batch_size=args.batch,
-                                                   shuffle=False, num_workers=args.num_workers,
-                                                   collate_fn=collate_fn)
+                                                 shuffle=False, num_workers=args.num_workers,
+                                                 collate_fn=collate_fn)
 
     # Optimizer
     params = [p for p in model.parameters() if p.requires_grad]
@@ -104,7 +105,7 @@ def train():
                         }
                         torch.save(states, os.path.join(args.pretrained, 'latest_model.pth'))
             lr_scheduler.step(ll)
-        
+
         # Log metrics to wandb
         wandb.log({"mAP@50: ": mm,
                    "F1 Score ": f1,

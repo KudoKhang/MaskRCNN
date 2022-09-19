@@ -32,10 +32,10 @@ class HairDataset(torch.utils.data.Dataset):
         fname, _ = data_path.split('.')
         return "{}.{}".format(fname, 'png')
 
-    def resize(self, data, label, max_size=self.max_size):
+    def resize(self, data, label):
         w, h = data.size
         max = h if h >= w else w
-        new_size = (int(max_size * w / h), max_size) if max == h else (max_size, int(max_size * h / w))
+        new_size = (int(self.max_size * w / h), self.max_size) if max == h else (self.max_size, int(self.max_size * h / w))
         data = data.resize(new_size, Image.ANTIALIAS)
         label = label.resize(new_size, Image.ANTIALIAS)
         return data, label
