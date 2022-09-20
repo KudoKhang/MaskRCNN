@@ -140,6 +140,16 @@ def resnet34_maskRCNN(num_classes = 2 + 80, pretrain = False):
 
 	return MaskRCNN(backbone, num_classes)
 
+
+from torchvision.models.resnet import resnet18
+def resnet18_maskRCNN(num_classes=2 + 80, pretrain=False):
+	backbone = resnet18(pretrained=pretrain, progress=True, norm_layer=misc_nn_ops.FrozenBatchNorm2d)
+	backbone = BackboneWithFPN(backbone=backbone,
+							   return_layers={'layer1': '0', 'layer2': '1', 'layer3': '2', 'layer4': '3'},
+							   in_channels_list=[64, 128, 256, 512], out_channels=256, extra_blocks=LastLevelMaxPool())
+
+	return MaskRCNN(backbone, num_classes)
+
 from torchvision.models.resnet import resnet101
 def resnet101_maskRCNN(num_classes = 2 + 80, pretrain = False):
 	
@@ -165,3 +175,13 @@ def mobile_maskRCNN(num_classes = 2 + 80, pretrain = False):
 	backbone = BackboneWithFPN(backbone = backbone.features, return_layers = {"13":'0', "14":'1', "15":'2', "16":'3'}, in_channels_list=[160, 160, 160, 960], out_channels=256, extra_blocks=LastLevelMaxPool())
 	
 	return MaskRCNN(backbone, num_classes)
+
+models_inference = {'resnet101': resnet101_maskRCNN(2),
+		  'resnet50': resnet50_maskRCNN(2),
+		  'resnet34': resnet34_maskRCNN(2),
+		  'resnet18': resnet18_maskRCNN(2)}
+
+models_train = {'resnet101': resnet101_maskRCNN(2, True),
+		  'resnet50': resnet50_maskRCNN(2, True),
+		  'resnet34': resnet34_maskRCNN(2, True),
+		  'resnet18': resnet18_maskRCNN(2, True)}
