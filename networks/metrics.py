@@ -23,7 +23,7 @@ def eval_model(model, data_loader, device):
     model.eval()
     map50 = []
     f1score = []
-    for images, targets in data_loader:
+    for images, targets in tqdm(data_loader):
         images = [image.to(device) for image in images]
         targets = [{k: v.cpu() for k, v in t.items()} for t in targets]
 
@@ -42,7 +42,11 @@ def eval_model(model, data_loader, device):
             f1score_temp = []
             for i in range(len(pred_mask)):
                 f1score_temp.append(f1_loss(target_mask, pred_mask[i], device))
-            f1score.append(max(f1score_temp).detach().cpu())
+            try:
+                f1score.append(max(f1score_temp).detach().cpu())
+            except:
+                f1score.append(0)
+
             ious_score = bbox_overlaps(pred_box.cpu(), target_box).numpy()
             map = np.mean(ious_score[range(len(ious_score)), np.argmax(ious_score, -1)] >= 0.5)
             map50.append(map)
