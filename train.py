@@ -9,6 +9,7 @@ def get_args():
     parser.add_argument("--lr", type=float, default=1e-5)
     parser.add_argument("--num-workers", type=int, default=4)
     parser.add_argument("--num-classes", type=int, default=2)
+    parser.add_argument("--backbone", type=str, default='resnet101')
     args = parser.parse_args()
     print("           ⊱ ──────ஓ๑♡๑ஓ ────── ⊰")
     print("🎵 hhey, arguments are here if you need to check 🎵")
@@ -22,7 +23,7 @@ def train():
     args = get_args()
 
     # Init model
-    model = resnet101_maskRCNN(args.num_classes, True)
+    model = models_train[args.backbone]
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     model.to(device)
 
